@@ -24,7 +24,6 @@ export default function App() {
     setTransacoes([...transacoes, valores]);
     salvaTransacao(valores);
   }
-
   return (
     <>
       <Cabecalho />
@@ -36,6 +35,7 @@ export default function App() {
             <Transacao realizarTransacao={realizarTransacao} />
           )}
           <Outlet />
+          <noscript data-testid='location'>{location.pathname}</noscript>
         </div>
         <Extrato transacoes={transacoes} />
       </main>
