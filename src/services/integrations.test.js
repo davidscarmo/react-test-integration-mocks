@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import App from '../paginas/Principal/App';
-import { buscaTransacoes } from './transacoes';
+import { buscaTransacoes, salvaTransacao } from './transacoes';
 // import { BrowserRouter } from 'react-router-dom';
 import api from './api';
 import { buscaSaldo } from './saldo';
@@ -40,6 +40,24 @@ const mockRequestGetBalance = (balanceData) => {
       resolve({
         data: balanceData,
       });
+    }, 200);
+  });
+};
+
+const mockRequestPost = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        status: 201,
+      });
+    }, 200);
+  });
+};
+
+const mockRequestPostError = () => {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject();
     }, 200);
   });
 };
@@ -85,5 +103,19 @@ describe('API requests', () => {
     const balance = await buscaSaldo();
 
     expect(balance).toEqual(mockBalance);
+  });
+
+  it('Should return status 201 - (Created) after POST request', async () => {
+    api.post.mockImplementation(() => mockRequestPost());
+    const status = await salvaTransacao(mockTransaction[0]);
+    expect(status).toBe(201);
+    expect(api.post).toHaveBeenCalledWith('/transacoes', mockTransaction[0]);
+  });
+
+  it('Deve retornar um saldo de 1000 quando a requisição POST falhar', async () => {
+    api.post.mockImplementation(() => mockRequestPostError());
+    const status = await salvaTransacao(mockTransaction[0]);
+    expect(status).toBe('Erro na requisição');
+    expect(api.post).toHaveBeenCalledWith('/transacoes', mockTransaction[0]);
   });
 });
